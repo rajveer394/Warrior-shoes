@@ -1,114 +1,149 @@
-<!DOCTYPE html><html lang="hi">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>WARRIOR Shoes – Final Stable Version</title>
+<title>WARRIOR Shoes – Final Stable</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#000}
-header{padding:15px;background:#000;color:#fff;text-align:center}
-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#f5f5f5;padding:10px;position:sticky;top:0;z-index:10}
-nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px;background:#000;color:#fff}
+body{margin:0;font-family:Arial;background:#fff;color:#000}
+header{background:#000;color:#fff;padding:15px;text-align:center}
+nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#f5f5f5;padding:10px;position:sticky;top:0}
+nav button{padding:10px 15px;border:none;border-radius:5px;background:#000;color:#fff;cursor:pointer}
 .section{display:none;padding:20px}
 .section.active{display:block}
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
 .card{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center;position:relative}
 .card img{width:100%;height:180px;object-fit:cover}
-.out{opacity:0.5}
+.out{opacity:.5}
+.badge{position:absolute;top:5px;right:5px;background:red;color:#fff;font-size:12px;padding:2px 6px;border-radius:4px}
 .admin-only{display:none}
 .admin-on .admin-only{display:block}
-.badge{position:absolute;top:5px;right:5px;background:red;color:#fff;padding:2px 6px;font-size:12px;border-radius:4px}
 </style>
 </head>
-<body><header>
+<body>
+
+<header>
 <h1 id="siteTitle">WARRIOR SHOES</h1>
 <p id="siteTag">Best Shoes | VIP Limited</p>
-</header><nav>
-<button onclick="showSection('home')">Home</button>
-<button onclick="showSection('normal')">Normal</button>
-<button onclick="showSection('vip')">VIP</button>
-<button onclick="showSection('cart')">Cart</button>
-<button onclick="showSection('admin')">Admin</button>
-</nav><div id="home" class="section active">
+</header>
+
+<nav>
+<button onclick="show('home')">Home</button>
+<button onclick="show('normal')">Normal</button>
+<button onclick="show('best')">Best</button>
+<button onclick="show('vip')">VIP</button>
+<button onclick="show('cart')">Cart</button>
+<button onclick="show('admin')">Admin</button>
+</nav>
+
+<div id="home" class="section active">
 <img id="homeImg" style="width:100%;max-height:350px;object-fit:cover">
-</div><div id="normal" class="section">
+</div>
+
+<div id="normal" class="section">
 <h2>Normal Shoes</h2>
 <div class="products" id="normalProducts"></div>
-</div><div id="vip" class="section">
+</div>
+
+<div id="best" class="section">
+<h2>Best Shoes</h2>
+<div class="products" id="bestProducts"></div>
+</div>
+
+<div id="vip" class="section">
 <h2>VIP Shoes</h2>
 <div class="products" id="vipProducts"></div>
-</div><div id="cart" class="section">
+</div>
+
+<div id="cart" class="section">
 <h2>Your Cart</h2>
 <div id="cartItems"></div>
 <p id="cartTotal"></p>
 <button onclick="checkout()">Order on WhatsApp</button>
-</div><div id="admin" class="section">
+</div>
+
+<div id="admin" class="section">
 <h2>Admin Login</h2>
 <input type="password" id="adminPass" placeholder="Password">
-<button onclick="loginAdmin()">Login</button><div id="adminPanel" class="admin-only">
+<button onclick="loginAdmin()">Login</button>
+
+<div id="adminPanel" class="admin-only">
 <hr>
+
 <h3>Site Settings</h3>
 <input id="titleInput" placeholder="Site Title">
 <button onclick="setTitle()">Save</button><br><br>
+
 <input id="tagInput" placeholder="Tagline">
 <button onclick="setTag()">Save</button><br><br>
-<input type="file" onchange="setHomeImage(this)"><br><br><h3>Add Product</h3>
+
+<input type="file" onchange="setHomeImg(this)"><br><br>
+
+<h3>Add Product</h3>
 <input id="pname" placeholder="Product Name"><br>
 <input id="pprice" type="number" placeholder="Price"><br>
 <select id="pcat">
 <option value="normal">Normal</option>
+<option value="best">Best</option>
 <option value="vip">VIP</option>
 </select><br>
 <input type="file" id="pimg"><br>
-<button onclick="addProduct()">Add Product</button><h3>Manage Admins</h3>
+<button onclick="addProduct()">Add Product</button>
+
+<h3>Manage Admins</h3>
 <input id="newAdminPass" placeholder="New Admin Password">
 <button onclick="addAdmin()">Add Admin</button>
-<br><br>
+
 <h3>Discount</h3>
 <input id="discountInput" type="number" placeholder="Discount %">
-<button onclick="applyDiscount()">Apply Discount</button>
+<button onclick="applyDiscount()">Apply</button>
 </div>
-</div><script>
-let admins=JSON.parse(localStorage.getItem('admins'))||['admin123'];
+</div>
+
+<script>
+const WHATSAPP_NUMBER="919558621515";
+
+let admins=JSON.parse(localStorage.getItem("admins"))||["admin123"];
 let isAdmin=false;
 let cart=[];
 
-let site=JSON.parse(localStorage.getItem('site'))||{
- title:'WARRIOR SHOES',
- tag:'Best Shoes | VIP Limited',
- img:''
+let site=JSON.parse(localStorage.getItem("site"))||{
+ title:"WARRIOR SHOES",
+ tag:"Best Shoes | VIP Limited",
+ img:"https://images.unsplash.com/photo-1528701800489-20be1c1b8a5c"
 };
 
-let discount=parseFloat(localStorage.getItem('discount'))||0;
+let discount=+localStorage.getItem("discount")||0;
 
-let products=JSON.parse(localStorage.getItem('products'))||{
- normal:[],
- vip:[]
+let products=JSON.parse(localStorage.getItem("products"))||{
+ normal:[], best:[], vip:[]
 };
 
-function showSection(id){
- document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
- document.getElementById(id).classList.add('active');
+function show(id){
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
 }
 
-function saveAll(){
- localStorage.setItem('products',JSON.stringify(products));
- localStorage.setItem('site',JSON.stringify(site));
- localStorage.setItem('discount',discount);
+function save(){
+ localStorage.setItem("admins",JSON.stringify(admins));
+ localStorage.setItem("site",JSON.stringify(site));
+ localStorage.setItem("products",JSON.stringify(products));
+ localStorage.setItem("discount",discount);
 }
 
 function loginAdmin(){
  if(admins.includes(adminPass.value)){
   isAdmin=true;
-  document.body.classList.add('admin-on');
-  adminPanel.style.display='block';
-  alert('Admin Mode ON');
- }else alert('Wrong password');
+  document.body.classList.add("admin-on");
+  adminPanel.style.display="block";
+  render();
+ } else alert("Wrong password");
 }
 
-function renderProducts(){
- ['normal','vip'].forEach(cat=>{
-  const box=document.getElementById(cat+'Products');
-  box.innerHTML='';
+function render(){
+ ["normal","best","vip"].forEach(cat=>{
+  const box=document.getElementById(cat+"Products");
+  box.innerHTML="";
   products[cat].forEach((p,i)=>{
    box.innerHTML+=`
    <div class="card ${p.stock===false?'out':''}">
@@ -116,103 +151,66 @@ function renderProducts(){
     <img src="${p.img}">
     <h4>${p.name}</h4>
     <p>₹${p.price}</p>
-    <button onclick="addToCart('${cat}',${i})" ${p.stock===false?'disabled':''}>Add to Cart</button>
+    <button onclick="addCart('${cat}',${i})" ${p.stock===false?'disabled':''}>Add</button>
     ${isAdmin?`<br><button onclick="toggleStock('${cat}',${i})">Stock</button>
-    <button onclick="deleteProduct('${cat}',${i})">Delete</button>`:''}
+    <button onclick="del('${cat}',${i})">Delete</button>`:''}
    </div>`;
   });
  });
 }
 
 function addProduct(){
- const file=pimg.files[0];
- if(!file||!pname.value||!pprice.value) return alert('Fill all');
- const reader=new FileReader();
- reader.onload=e=>{
+ const f=pimg.files[0];
+ if(!f||!pname.value||!pprice.value) return alert("Fill all");
+ const r=new FileReader();
+ r.onload=e=>{
   products[pcat.value].push({
    name:pname.value,
    price:+pprice.value,
    img:e.target.result,
    stock:true
   });
-  saveAll();
-  renderProducts();
-  alert('Product Added');
+  save(); render();
  };
- reader.readAsDataURL(file);
+ r.readAsDataURL(f);
 }
 
-function deleteProduct(cat,i){
- if(confirm('Delete product?')){
-  products[cat].splice(i,1);
-  saveAll();
-  renderProducts();
- }
-}
-
-function toggleStock(cat,i){
- products[cat][i].stock=!products[cat][i].stock;
- saveAll();
- renderProducts();
-}
-
-function addToCart(cat,i){
- cart.push(products[cat][i]);
- renderCart();
-}
+function del(c,i){products[c].splice(i,1);save();render();}
+function toggleStock(c,i){products[c][i].stock=!products[c][i].stock;save();render();}
+function addCart(c,i){cart.push(products[c][i]);renderCart();}
 
 function renderCart(){
- let total=0;
- cartItems.innerHTML='';
- cart.forEach((c,idx)=>{
-  total+=c.price;
-  cartItems.innerHTML+=`${idx+1}. ${c.name} - ₹${c.price}<br>`;
- });
- let disc=total*(discount/100);
- cartTotal.innerText=`Total: ₹${total-disc} (Discount ${discount}%)`;
-}
-
-function applyDiscount(){
- discount=parseFloat(discountInput.value)||0;
- saveAll();
- renderCart();
-}
-
-function addAdmin(){
- if(!isAdmin) return;
- if(!newAdminPass.value) return alert('Enter password');
- admins.push(newAdminPass.value);
- localStorage.setItem('admins',JSON.stringify(admins));
- newAdminPass.value='';
- alert('New Admin Added');
+ let t=0; cartItems.innerHTML="";
+ cart.forEach((c,i)=>{t+=c.price;cartItems.innerHTML+=`${i+1}. ${c.name} ₹${c.price}<br>`});
+ let d=t*(discount/100);
+ cartTotal.innerText=`Total: ₹${t-d} (Discount ${discount}%)`;
 }
 
 function checkout(){
- if(cart.length===0) return alert('Cart empty');
- let name=prompt('Name');
- let addr=prompt('Address');
- let phone=prompt('Phone');
- if(!name||!addr||!phone) return;
- let items=cart.map(c=>`${c.name} ₹${c.price}`).join('%0A');
- let total=cart.reduce((s,c)=>s+c.price,0);
- let msg=`NEW ORDER%0AName:${name}%0APhone:${phone}%0AAddress:${addr}%0A---ITEMS---%0A${items}%0ATotal:₹${total-discount*total/100}`;
- window.location.href=`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+ if(cart.length===0) return alert("Cart empty");
+ let n=prompt("Name"), a=prompt("Address"), p=prompt("Phone");
+ if(!n||!a||!p) return;
+ let items=cart.map(c=>c.name+" ₹"+c.price).join("%0A");
+ let t=cart.reduce((s,c)=>s+c.price,0);
+ let msg=`NEW ORDER%0AName:${n}%0APhone:${p}%0AAddress:${a}%0A${items}%0ATotal:₹${t-(t*discount/100)}`;
+ window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,"_blank");
 }
 
-function setTitle(){site.title=titleInput.value||site.title;siteTitle.innerText=site.title;saveAll();}
-function setTag(){site.tag=tagInput.value||site.tag;siteTag.innerText=site.tag;saveAll();}
-function setHomeImage(input){
- const file=input.files[0];
- if(!file) return;
+function applyDiscount(){discount=+discountInput.value||0;save();renderCart();}
+function addAdmin(){if(!newAdminPass.value)return;admins.push(newAdminPass.value);save();alert("Admin added");newAdminPass.value="";}
+function setTitle(){site.title=titleInput.value||site.title;siteTitle.innerText=site.title;save();}
+function setTag(){site.tag=tagInput.value||site.tag;siteTag.innerText=site.tag;save();}
+function setHomeImg(i){
+ const f=i.files[0]; if(!f)return;
  const r=new FileReader();
- r.onload=e=>{site.img=e.target.result;homeImg.src=site.img;saveAll();};
- r.readAsDataURL(file);
+ r.onload=e=>{site.img=e.target.result;homeImg.src=site.img;save();};
+ r.readAsDataURL(f);
 }
 
 siteTitle.innerText=site.title;
 siteTag.innerText=site.tag;
-if(site.img) homeImg.src=site.img;
-
-renderProducts();
-</script></body>
+homeImg.src=site.img;
+render();
+</script>
+</body>
 </html>
