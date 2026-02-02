@@ -1,134 +1,117 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>Warrior Shoes</title>
+<title>WARRIOR Shoes – Final</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-body{margin:0;font-family:Arial;background:#f5f5f5}
-header{background:#000;color:#fff;padding:15px;text-align:center;font-size:22px}
-img.hero{width:100%;max-height:280px;object-fit:cover}
-
-.container{padding:15px}
-.card{background:#fff;padding:10px;margin-bottom:10px;border-radius:6px}
-button{padding:8px 12px;margin:4px;border:none;border-radius:4px;background:#000;color:#fff;cursor:pointer}
-input,select{padding:8px;margin:4px;width:100%}
-.admin{background:#222;color:#fff;padding:10px;margin-top:10px}
-.hidden{display:none}
-.stock-out{opacity:0.5}
+body{margin:0;font-family:Arial;background:#fff;color:#000}
+header{padding:15px;background:#000;color:#fff;text-align:center}
+nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#f5f5f5;padding:10px;position:sticky;top:0;z-index:10}
+nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px;background:#000;color:#fff}
+.section{display:none;padding:20px}
+.active{display:block}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
+.card{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center}
+.card img{width:100%;height:180px;object-fit:cover}
+.vip{box-shadow:0 0 15px gold}
+.admin-panel{border:2px dashed red;padding:10px;margin-bottom:20px}
+.out{opacity:.5}
 </style>
 </head>
-
 <body>
-
-<header>WARRIOR SHOES</header>
-<img class="hero" src="home.jpg" alt="Home Image">
-
-<div class="container">
-
-<h3>Products</h3>
-<div id="productList"></div>
-
-<h3>Order</h3>
-<input id="custName" placeholder="Your Name">
-<input id="custPhone" placeholder="Phone Number">
-<input id="custAddress" placeholder="Address">
-<button onclick="placeOrder()">Order on WhatsApp</button>
-
-<hr>
-
-<div id="loginBox">
-<h3>Admin Login</h3>
-<input id="adminId" placeholder="Admin ID">
+<header>
+<h1>WARRIOR SHOES</h1>
+<p>Best Shoes Collection</p>
+</header><nav>
+<button onclick="show('home')">Home</button>
+<button onclick="show('normal')">Normal</button>
+<button onclick="show('best')">Best</button>
+<button onclick="show('vip')">VIP</button>
+<button onclick="show('cart')">Cart</button>
+<button onclick="show('admin')">Admin</button>
+</nav><div id="home" class="section active">
+<img id="homeImg" style="width:100%">
+</div><div id="normal" class="section"><h2>Normal Shoes</h2><div id="normalProducts" class="products"></div></div>
+<div id="best" class="section"><h2>Best Shoes</h2><div id="bestProducts" class="products"></div></div>
+<div id="vip" class="section"><h2>VIP Shoes</h2><div id="vipProducts" class="products"></div></div><div id="cart" class="section">
+<h2>Cart</h2>
+<div id="cartItems"></div>
+<p id="cartTotal"></p>
+<button onclick="checkout()">Order on WhatsApp</button>
+</div><div id="admin" class="section">
+<h2>Admin Login</h2>
 <input id="adminPass" type="password" placeholder="Password">
-<button onclick="adminLogin()">Login</button>
+<button onclick="login()">Login</button>
+<div id="adminPanel" style="display:none" class="admin-panel">
+<h3>Add Product</h3>
+<select id="cat"><option value="normal">Normal</option><option value="best">Best</option><option value="vip">VIP</option></select><br><br>
+<input id="pname" placeholder="Product name"><br><br>
+<input id="pprice" type="number" placeholder="Price"><br><br>
+<input id="pimg" type="file" accept="image/*"><br><br>
+<button onclick="addProduct()">ADD PRODUCT</button>
 </div>
+</div><script>
+const ADMIN_PASSWORDS=['123','Ch@vd@ r@jveer99'];
+let isAdmin=false;
+let cart=JSON.parse(localStorage.getItem('cart'))||[];
+let products=JSON.parse(localStorage.getItem('products'))||{
+ normal:[{name:'Warrior Basic',price:499,img:'https://images.unsplash.com/photo-1519741497674-611481863552',stock:true}],
+ best:[{name:'Warrior Pro',price:899,img:'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77',stock:true}],
+ vip:[{name:'Warrior VIP',price:1499,img:'https://images.unsplash.com/photo-1606813902919-6e5d90cfe5b4',stock:true}]
+};
 
-<div id="adminPanel" class="admin hidden">
-<h3>Admin Panel</h3>
+function save(){localStorage.setItem('products',JSON.stringify(products));localStorage.setItem('cart',JSON.stringify(cart));}
+function show(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-<input id="pName" placeholder="Product Name">
-<input id="pPrice" placeholder="Price">
-<select id="pType">
-<option>Normal</option>
-<option>VIP</option>
-<option>Best</option>
-</select>
-<select id="pStock">
-<option value="true">In Stock</option>
-<option value="false">Out of Stock</option>
-</select>
-<input id="pDiscount" placeholder="Discount %">
-<button onclick="addProduct()">Add Product</button>
+function render(){['normal','best','vip'].forEach(t=>{
+ const box=document.getElementById(t+'Products');box.innerHTML='';
+ products[t].forEach((p,i)=>{
+  box.innerHTML+=`<div class="card ${p.stock?'':'out'} ${t==='vip'?'vip':''}">
+  <img src="${p.img}">
+  <h3>${p.name}</h3>
+  <p>₹${p.price}</p>
+  <button onclick="addToCart('${t}',${i})" ${p.stock?'':'disabled'}>Add to Cart</button>
+  ${isAdmin?`<br><button onclick="toggleStock('${t}',${i})">${p.stock?'Out':'In'} Stock</button>
+  <button onclick="deleteProduct('${t}',${i})">Delete</button>`:''}
+  </div>`;
+ });
+});}
 
-</div>
-
-</div>
-
-<script>
-const ADMINS=["admin","admin2"];
-const PASS="123";
-const WHATSAPP="+919558621515";
-
-let products=JSON.parse(localStorage.getItem("products")||"[]");
-
-function save(){localStorage.setItem("products",JSON.stringify(products));}
-
-function render(){
-let html="";
-products.forEach((p,i)=>{
-html+=`
-<div class="card ${!p.stock?'stock-out':''}">
-<b>${p.name}</b><br>
-₹${p.price} | ${p.type}<br>
-Discount: ${p.discount}%<br>
-${p.stock?"In Stock":"Out of Stock"}<br>
-<button onclick="del(${i})">Delete</button>
-</div>`;
-});
-document.getElementById("productList").innerHTML=html;
+function login(){
+ if(ADMIN_PASSWORDS.includes(adminPass.value)){
+  isAdmin=true;adminPanel.style.display='block';alert('Admin ON');render();
+ }else alert('Wrong password');
 }
-render();
 
 function addProduct(){
-let p={
-name:pName.value,
-price:pPrice.value,
-type:pType.value,
-stock:pStock.value==="true",
-discount:pDiscount.value||0
-};
-if(!p.name||!p.price){alert("Fill all");return;}
-products.push(p);
-save();render();
-alert("Product Added");
+ const c=cat.value,n=pname.value,pr=+pprice.value,f=pimg.files[0];
+ if(!n||!pr||!f){alert('Fill all');return;}
+ const r=new FileReader();
+ r.onload=e=>{products[c].push({name:n,price:pr,img:e.target.result,stock:true});save();render();pname.value='';pprice.value='';pimg.value='';};
+ r.readAsDataURL(f);
 }
 
-function del(i){
-if(confirm("Delete?")){
-products.splice(i,1);
-save();render();
-}
-}
+function deleteProduct(c,i){if(!isAdmin)return;if(confirm('Delete?')){products[c].splice(i,1);save();render();}}
+function toggleStock(c,i){products[c][i].stock=!products[c][i].stock;save();render();}
 
-function adminLogin(){
-if(ADMINS.includes(adminId.value)&&adminPass.value===PASS){
-adminPanel.classList.remove("hidden");
-loginBox.classList.add("hidden");
-}else alert("Wrong Login");
+function addToCart(c,i){cart.push(products[c][i]);save();renderCart();alert('Added');}
+
+function renderCart(){
+ const box=document.getElementById('cartItems');box.innerHTML='';
+ cart.forEach((p,i)=>box.innerHTML+=`<p>${i+1}. ${p.name} - ₹${p.price}</p>`);
+ document.getElementById('cartTotal').innerText='Total ₹'+cart.reduce((s,p)=>s+p.price,0);
 }
 
-function placeOrder(){
-let name=custName.value;
-let phone=custPhone.value;
-let addr=custAddress.value;
-if(!name||!phone||!addr){alert("Fill all");return;}
-
-let msg=`Order from ${name}%0APhone: ${phone}%0AAddress: ${addr}`;
-window.open(`https://wa.me/${WHATSAPP}?text=${msg}`,"_blank");
+function checkout(){
+ const n=prompt('Name'),a=prompt('Address'),p=prompt('Phone');
+ if(!n||!a||!p)return;
+ const items=cart.map(x=>x.name+' ₹'+x.price).join('%0A');
+ const t=cart.reduce((s,x)=>s+x.price,0);
+ location.href=`https://wa.me/919558621515?text=ORDER%0A${items}%0ATotal ₹${t}%0A${n}%0A${p}%0A${a}`;
 }
-</script>
 
-</body>
+const savedHome=localStorage.getItem('homeImg');
+if(savedHome)homeImg.src=savedHome;else homeImg.src='https://images.unsplash.com/photo-1528701800489-20be1c1b8a5c';
+render();renderCart();
+</script></body>
 </html>
