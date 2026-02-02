@@ -1,187 +1,202 @@
 <!DOCTYPE html><html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>WARRIOR Shoes – FINAL FIXED</title>
+<title>WARRIOR SHOES – Industry Level (No Firebase)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:Arial;background:#fff;color:#000}
-header{padding:15px;background:#000;color:#fff;text-align:center}
-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#f5f5f5;padding:10px;position:sticky;top:0;z-index:10}
-nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px;background:#000;color:#fff}
+:root{--dark:#111;--light:#fff;--gray:#f4f6f8;--accent:#0d6efd}
+*{box-sizing:border-box}
+body{margin:0;font-family:Poppins;background:var(--gray)}
+header{background:var(--dark);color:#fff;padding:22px;text-align:center}
+nav{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;background:#fff;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);position:sticky;top:0;z-index:10}
+nav button{padding:10px 16px;border:none;border-radius:10px;background:var(--dark);color:#fff;cursor:pointer}
 .section{display:none;padding:20px}
 .active{display:block}
-.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
-.card{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center}
-.card img{width:100%;height:180px;object-fit:cover}
-.vip{box-shadow:0 0 15px gold}
-.out{opacity:.5}
-.admin-panel{border:2px dashed red;padding:10px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:12px;text-align:center}
+.card img{width:100%;height:180px;object-fit:cover;border-radius:12px}
+.card.out{opacity:.5}
+button.primary{background:var(--accent);color:#fff;border:none;padding:12px;border-radius:10px;cursor:pointer;width:100%}
+button.danger{background:#dc3545;color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer}
+button.secondary{background:#111;color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer}
+.admin-box{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin-bottom:20px}
+input,select,textarea{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:1px solid #ccc;font-family:Poppins}
+hr{border:none;border-top:1px solid #ddd;margin:16px 0}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border:1px solid #ddd;padding:8px;text-align:left}
+.table th{background:#f1f1f1}
+.badge{display:inline-block;padding:4px 8px;border-radius:6px;background:#0d6efd;color:#fff;font-size:12px}
 </style>
 </head>
 <body>
 <header>
 <h1>WARRIOR SHOES</h1>
-<p>Premium Shoes Store</p>
+<p>Industry Level Offline E‑Commerce System</p>
 </header><nav>
 <button onclick="show('home')">Home</button>
-<button onclick="show('normal')">Normal</button>
-<button onclick="show('best')">Best</button>
-<button onclick="show('vip')">VIP</button>
+<button onclick="show('products')">Products</button>
 <button onclick="show('cart')">Cart</button>
 <button onclick="show('admin')">Admin</button>
 </nav><div id="home" class="section active">
-<img id="homeImg" style="width:100%"><div id="homeText"></div>
-</div><div id="normal" class="section"><h2>Normal Shoes</h2><div id="normalProducts" class="products"></div></div>
-<div id="best" class="section"><h2>Best Shoes</h2><div id="bestProducts" class="products"></div></div>
-<div id="vip" class="section"><h2>VIP Shoes</h2><div id="vipProducts" class="products"></div></div><div id="cart" class="section">
-<h2>Cart</h2>
+<h2>Welcome</h2>
+<p>Premium shoes with professional admin system (No Firebase).</p>
+</div><div id="products" class="section">
+<h2>Products</h2>
+<div id="productGrid" class="grid"></div>
+</div><div id="cart" class="section">
+<h2>Checkout</h2>
 <div id="cartItems"></div>
-<p id="cartTotal"></p>
-<input id="couponInput" placeholder="Coupon code">
-<button onclick="applyCoupon()">Apply Coupon</button>
-<p id="discountText"></p>
-<button onclick="checkout()">Order on WhatsApp</button>
+<input id="cName" placeholder="Name">
+<input id="cPhone" placeholder="Phone">
+<textarea id="cAddress" placeholder="Full Address"></textarea>
+<p id="total"></p>
+<button class="primary" onclick="placeOrder()">Order on WhatsApp</button>
 </div><div id="admin" class="section">
-<h2>Admin Login</h2>
-<input id="adminPass" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-<div id="adminPanel" style="display:none" class="admin-panel">
-<h3>Add Product (FIXED)</h3>
-<select id="cat"><option value="normal">Normal</option><option value="best">Best</option><option value="vip">VIP</option></select><br><br>
-<input id="pname" placeholder="Product name"><br><br>
-<input id="pprice" type="number" placeholder="Price"><br><br>
-<input id="pimg" type="file" accept="image/*"><br><br>
-<button onclick="addProduct()">ADD PRODUCT</button>
-<hr>
-<h3>Discount / Coupon</h3>
-<input id="couponCode" placeholder="CODE"><br><br>
-<input id="couponPercent" type="number" placeholder="Discount %"><br><br>
-<button onclick="saveCoupon()">Save Coupon</button>
-<hr>
-<h3>Backup & Restore (SAFE)</h3>
-<button onclick="backupData()">Download Backup</button><br><br>
-<input type="file" id="restoreFile" accept="application/json"><br><br>
-<button onclick="restoreData()">Restore Backup</button>
+<h2>Admin Panel</h2>
+<div class="admin-box" id="loginBox">
+<input id="adminPass" type="password" placeholder="Admin Password">
+<button class="primary" onclick="login()">Login</button>
+</div><div id="adminPanel" style="display:none">
+<div class="admin-box">
+<h3>Admin Status</h3>
+<p>Role: <span class="badge">Super Admin</span></p>
+</div><div class="admin-box">
+<h3>Add Product</h3>
+<input id="pName" placeholder="Product Name">
+<input id="pPrice" type="number" placeholder="Price">
+<input id="pImg" type="file" accept="image/*">
+<button class="primary" onclick="addProduct()">Add Product</button>
+</div><div class="admin-box">
+<h3>Coupons / Discount</h3>
+<input id="couponCode" placeholder="Coupon Code">
+<input id="couponPercent" type="number" placeholder="Discount %">
+<button class="secondary" onclick="saveCoupon()">Save Coupon</button>
+</div><div class="admin-box">
+<h3>Orders</h3>
+<table class="table">
+<thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Address</th><th>Items</th><th>Time</th></tr></thead>
+<tbody id="orders"></tbody>
+</table>
+</div><div class="admin-box">
+<h3>Backup / Restore</h3>
+<button class="secondary" onclick="backupData()">Download Backup</button>
+<input type="file" id="restoreFile" accept="application/json">
+<button class="secondary" onclick="restoreData()">Restore Backup</button>
+</div>
 </div>
 </div><script>
-/* ========== DATA (FINAL LOCALSTORAGE SAFE) ========= */
-const ADMIN_PASSWORDS=['123','Ch@vd@ r@jveer99'];
+// ===== SUPER ADMINS =====
+const SUPER_ADMINS=[
+ 'ch@vd@ r@jveer99',
+ 'sindhv priy@nka ba @99'
+];
 let isAdmin=false;
 
-// SAFE LOAD PRODUCTS
-let products = JSON.parse(localStorage.getItem('products'));
-if(!products){
- products={normal:[],best:[],vip:[]};
- localStorage.setItem('products',JSON.stringify(products));
-}
+// ===== DATA =====
+let products=JSON.parse(localStorage.getItem('products'))||[];
+let cart=JSON.parse(localStorage.getItem('cart'))||[];
+let orders=JSON.parse(localStorage.getItem('orders'))||[];
+let coupon=JSON.parse(localStorage.getItem('coupon'))||null;
+let appliedDiscount=0;
 
-// SAFE LOAD CART
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-// SAFE LOAD COUPON
-let coupon = JSON.parse(localStorage.getItem('coupon')) || null;
-let appliedDiscount = 0;
-
-/* ========== CORE ========= */
-function save(){
+function saveAll(){
  localStorage.setItem('products',JSON.stringify(products));
  localStorage.setItem('cart',JSON.stringify(cart));
+ localStorage.setItem('orders',JSON.stringify(orders));
  localStorage.setItem('coupon',JSON.stringify(coupon));
 }
-function show(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-/* ========== RENDER ========= */
-function render(){['normal','best','vip'].forEach(t=>{
- const box=document.getElementById(t+'Products');
- box.innerHTML='';
- products[t].forEach((p,i)=>{
-  box.innerHTML+=`<div class="card ${p.stock?'':'out'} ${t==='vip'?'vip':''}">
-   <img src="${p.img}">
+function show(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+// ===== PRODUCTS =====
+function renderProducts(){
+ const g=document.getElementById('productGrid');g.innerHTML='';
+ products.forEach((p,i)=>{
+  g.innerHTML+=`<div class='card ${p.stock?'':'out'}'>
+   <img src='${p.img}'>
    <h3>${p.name}</h3>
    <p>₹${p.price}</p>
-   <button ${p.stock?'':'disabled'} onclick="addToCart('${t}',${i})">Add to Cart</button>
-   ${isAdmin?`<br><button onclick="toggleStock('${t}',${i})">${p.stock?'Out':'In'} Stock</button>
-   <button onclick="deleteProduct('${t}',${i})">Delete</button>`:''}
+   <button class='primary' ${p.stock?'':'disabled'} onclick='addToCart(${i})'>Add to Cart</button>
+   ${isAdmin?`<hr><button class='secondary' onclick='toggleStock(${i})'>${p.stock?'Out':'In'} Stock</button>
+   <button class='danger' onclick='deleteProduct(${i})'>Delete</button>`:''}
   </div>`;
  });
-});}
-
-function renderCart(){
- const box=document.getElementById('cartItems');box.innerHTML='';
- cart.forEach((p,i)=>box.innerHTML+=`<p>${i+1}. ${p.name} - ₹${p.price}</p>`);
- let total=cart.reduce((s,p)=>s+p.price,0);
- let discountAmt=total*appliedDiscount/100;
- document.getElementById('cartTotal').innerText='Total ₹'+(total-discountAmt);
 }
 
-/* ========== ADMIN ========= */
+function addProduct(){
+ const n=pName.value.trim();
+ const pr=parseFloat(pPrice.value);
+ const f=pImg.files[0];
+ if(!n||!pr||!f){alert('All fields required');return}
+ const r=new FileReader();
+ r.onload=e=>{
+  products.push({name:n,price:pr,img:e.target.result,stock:true});
+  saveAll();renderProducts();
+  pName.value='';pPrice.value='';pImg.value='';
+ };
+ r.readAsDataURL(f);
+}
+
+function deleteProduct(i){if(confirm('Delete product?')){products.splice(i,1);saveAll();renderProducts();}}
+function toggleStock(i){products[i].stock=!products[i].stock;saveAll();renderProducts();}
+
+// ===== CART =====
+function addToCart(i){cart.push(products[i]);saveAll();renderCart();alert('Added to cart')}
+function renderCart(){
+ const b=document.getElementById('cartItems');b.innerHTML='';let t=0;
+ cart.forEach(p=>{t+=p.price;b.innerHTML+=`<p>${p.name} - ₹${p.price}</p>`});
+ let discount=t*appliedDiscount/100;
+ total.innerText='Total ₹'+(t-discount);
+}
+
+// ===== COUPON =====
+function saveCoupon(){
+ if(!couponCode.value||!couponPercent.value){alert('Fill coupon');return}
+ coupon={code:couponCode.value,percent:parseFloat(couponPercent.value)};
+ saveAll();alert('Coupon saved');
+}
+
+// ===== ORDER =====
+function placeOrder(){
+ if(!cName.value||!cPhone.value||!cAddress.value){alert('Fill details');return}
+ const order={name:cName.value,phone:cPhone.value,address:cAddress.value,items:[...cart],time:new Date().toLocaleString()};
+ orders.push(order);cart=[];saveAll();renderCart();renderOrders();
+ let msg=`Order%0AName:${order.name}%0APhone:${order.phone}%0AAddress:${order.address}`;
+ window.open(`https://wa.me/919558621515?text=${msg}`);
+ alert('Order placed');
+}
+
+function renderOrders(){
+ const o=document.getElementById('orders');o.innerHTML='';
+ orders.forEach((or,i)=>{
+  const items=or.items.map(it=>it.name).join(', ');
+  o.innerHTML+=`<tr><td>${i+1}</td><td>${or.name}</td><td>${or.phone}</td><td>${or.address}</td><td>${items}</td><td>${or.time}</td></tr>`;
+ });
+}
+
+// ===== ADMIN LOGIN =====
 function login(){
- if(ADMIN_PASSWORDS.includes(adminPass.value)){
-  isAdmin=true;
-  adminPanel.style.display='block';
-  alert('Admin ON');
-  render();
+ if(SUPER_ADMINS.includes(adminPass.value)){
+  isAdmin=true;loginBox.style.display='none';adminPanel.style.display='block';renderProducts();renderOrders();
  }else alert('Wrong password');
 }
 
-/* ========== ADD PRODUCT – HARD FIX ========= */
-function addProduct(){
- const c=document.getElementById('cat').value;
- const n=document.getElementById('pname').value.trim();
- const pr=parseFloat(document.getElementById('pprice').value);
- const file=document.getElementById('pimg').files[0];
-
- if(!n || !pr || !file){alert('All fields required');return;}
-
- const reader=new FileReader();
- reader.onload=function(e){
-  products[c].push({name:n,price:pr,img:e.target.result,stock:true});
-  save();
-  render();
-  document.getElementById('pname').value='';
-  document.getElementById('pprice').value='';
-  document.getElementById('pimg').value='';
-  alert('Product Added');
- };
- reader.readAsDataURL(file);
+// ===== BACKUP =====
+function backupData(){
+ const data={products,orders,coupon};
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
+ a.download='backup.json';a.click();
+}
+function restoreData(){
+ const f=restoreFile.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=e=>{const d=JSON.parse(e.target.result);products=d.products||[];orders=d.orders||[];coupon=d.coupon||null;saveAll();renderProducts();renderOrders();alert('Restored')};
+ r.readAsText(f);
 }
 
-function deleteProduct(c,i){if(confirm('Delete product?')){products[c].splice(i,1);save();render();}}
-function toggleStock(c,i){products[c][i].stock=!products[c][i].stock;save();render();}
-
-/* ========== CART ========= */
-function addToCart(c,i){cart.push(products[c][i]);save();renderCart();alert('Added to cart');}
-
-/* ========== COUPON ========= */
-function saveCoupon(){
- const code=document.getElementById('couponCode').value.trim();
- const per=parseFloat(document.getElementById('couponPercent').value);
- if(!code||!per){alert('Fill coupon');return;}
- coupon={code:code,percent:per};save();alert('Coupon saved');
-}
-function applyCoupon(){
- if(!coupon){alert('No coupon');return;}
- if(couponInput.value===coupon.code){appliedDiscount=coupon.percent;alert('Coupon applied');renderCart();}
- else alert('Invalid coupon');
-}
-
-/* ========== ORDER ========= */
-function renderOrders(){
- if(!isAdmin) return;
- const table=document.getElementById('ordersTable');
- if(!table) return;
- const orders=JSON.parse(localStorage.getItem('orders'))||[];
- table.innerHTML='<tr><th>#</th><th>Name</th><th>Phone</th><th>Address</th><th>Items</th><th>Time</th></tr>';
- orders.forEach((o,i)=>{
-  const items=o.items.map(it=>it.name+'(₹'+it.price+')').join(', ');
-  table.innerHTML+=`<tr><td>${i+1}</td><td>${o.name}</td><td>${o.phone}</td><td>${o.address}</td><td>${items}</td><td>${o.time}</td></tr>`;
- });
-}
-
-/* ========== INIT ========= */
-const savedHome=localStorage.getItem('homeImg');
-homeImg.src=savedHome||'https://images.unsplash.com/photo-1528701800489-20be1c1b8a5c';
-const savedHomeText=localStorage.getItem('homeText');if(savedHomeText)homeText.innerText=savedHomeText;
-render();renderCart();renderOrders();
+// INIT
+renderProducts();renderCart();renderOrders();
 </script></body>
 </html>
