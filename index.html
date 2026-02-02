@@ -8,24 +8,20 @@
 <style>
 body{margin:0;font-family:Arial;background:#fff;color:#000}
 header{padding:15px;background:#000;color:#fff;text-align:center}
-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#f5f5f5;padding:10px}
-nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px;background:#ddd}
+nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#f5f5f5;padding:10px;position:sticky;top:0}
+nav button{padding:10px 15px;border:none;border-radius:5px;background:#000;color:#fff;cursor:pointer}
 .section{display:none;padding:20px}
 .section.active{display:block}
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
-.card{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center}
-.card img{width:100%;height:180px;object-fit:cover}
+.card{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center;position:relative}
+.card img{width:100%;height:180px;object-fit:cover;cursor:pointer}
 .vip{box-shadow:0 0 15px gold;animation:glow 2s infinite}
 @keyframes glow{0%{box-shadow:0 0 5px gold}50%{box-shadow:0 0 20px gold}100%{box-shadow:0 0 5px gold}}
-input{width:100%;padding:8px;margin:5px 0}
-.admin-only{display:none}
-
-.whatsapp-float{
-position:fixed;bottom:20px;right:20px;
-background:#25D366;color:white;
-padding:12px 18px;border-radius:50px;
-text-decoration:none;font-weight:bold;
-}
+.stock{position:absolute;top:5px;right:5px;padding:4px 7px;font-size:12px;color:#fff;border-radius:4px}
+.in{background:green}
+.out{background:red}
+.admin-badge{display:none;color:red;font-weight:bold}
+.admin-btn{margin:5px;padding:5px 10px}
 </style>
 </head>
 
@@ -33,44 +29,32 @@ text-decoration:none;font-weight:bold;
 
 <header>
 <h1>WARRIOR SHOES</h1>
-<p>Strong | Stylish | Limited</p>
-<p>📞 <a href="tel:+919558621515" style="color:white;text-decoration:none">
-+91 95586 21515</a></p>
+<p>Best Shoes | VIP Limited Edition</p>
 </header>
 
 <nav>
-<button onclick="showSection('home')">Home</button>
-<button onclick="showSection('normal')">Normal</button>
-<button onclick="showSection('expensive')">Expensive</button>
-<button onclick="showSection('vip')">VIP</button>
-<button onclick="showSection('cart')">Cart</button>
-<button onclick="showSection('admin')">Admin</button>
+<button onclick="show('home')">Home</button>
+<button onclick="show('normal')">Normal</button>
+<button onclick="show('expensive')">Best</button>
+<button onclick="show('vip')">VIP</button>
+<button onclick="show('cart')">Cart</button>
+<button onclick="show('admin')">Admin</button>
 </nav>
 
 <div id="home" class="section active">
 <h2>Welcome to WARRIOR</h2>
-<p>Best custom shoes in Gujarat</p>
-<img src="https://source.unsplash.com/1600x500/?shoes,sneakers" style="width:100%">
+<p>Custom Shoes Brand</p>
+<img id="homeImg" src="https://images.unsplash.com/photo-1528701800489-20be1c1b8a5c" style="width:100%;cursor:pointer" onclick="editHomeImg()">
 </div>
 
-<div id="normal" class="section">
-<h2>Normal Shoes</h2>
-<div class="products" id="normalProducts"></div>
-</div>
-
-<div id="expensive" class="section">
-<h2>Expensive Shoes</h2>
-<div class="products" id="expensiveProducts"></div>
-</div>
-
-<div id="vip" class="section">
-<h2>VIP Limited Edition</h2>
-<div class="products" id="vipProducts"></div>
-</div>
+<div id="normal" class="section"><h2>Normal Shoes</h2><div class="products" id="normalProducts"></div></div>
+<div id="expensive" class="section"><h2>Best Shoes</h2><div class="products" id="expensiveProducts"></div></div>
+<div id="vip" class="section"><h2>VIP Limited</h2><div class="products" id="vipProducts"></div></div>
 
 <div id="cart" class="section">
 <h2>Your Cart</h2>
 <div id="cartItems"></div>
+<p id="cartTotal"></p>
 <button onclick="checkout()">Buy Now (WhatsApp)</button>
 </div>
 
@@ -78,127 +62,159 @@ text-decoration:none;font-weight:bold;
 <h2>Admin Login</h2>
 <input type="password" id="adminPass" placeholder="Password">
 <button onclick="loginAdmin()">Login</button>
-<div id="adminPanel" class="admin-only">
-<p>Click product name / price / image to edit</p>
+<p id="adminBadge" class="admin-badge">ADMIN EDIT MODE ON</p>
+
+<div id="adminPanel" style="display:none">
+<h3>Add New Product</h3>
+<select id="cat">
+<option value="normal">Normal</option>
+<option value="expensive">Best</option>
+<option value="vip">VIP</option>
+</select>
+<input id="pname" placeholder="Product name">
+<input id="pprice" type="number" placeholder="Price">
+<button onclick="addProduct()">Add Product</button>
 </div>
 </div>
 
 <script>
-let ADMIN_PASSWORD="admin123";
+const ADMIN_PASSWORD="admin123";
 let isAdmin=false;
 let cart=[];
 
-const products={
-normal:[
-{name:"Warrior Basic",price:499,img:"https://source.unsplash.com/400x400/?shoes"}
-],
-expensive:[
-{name:"Warrior Pro",price:899,img:"https://source.unsplash.com/400x400/?running-shoes"}
-],
-vip:[
-{name:"Warrior VIP Gold",price:1499,img:"https://source.unsplash.com/400x400/?luxury-shoes"},
-{name:"Warrior VIP Black",price:1599,img:"https://source.unsplash.com/400x400/?black-shoes"}
-]
+let products=JSON.parse(localStorage.getItem('products'))||{
+normal:[{name:"Warrior Basic",price:499,img:"https://images.unsplash.com/photo-1519741497674-611481863552",stock:true}],
+expensive:[{name:"Warrior Best",price:899,img:"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77",stock:true}],
+vip:[{name:"Warrior VIP",price:1499,img:"https://images.unsplash.com/photo-1606813902919-6e5d90cfe5b4",stock:true}]
 };
 
-function showSection(id){
+function save(){localStorage.setItem('products',JSON.stringify(products));}
+
+function show(id){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.getElementById(id).classList.add('active');
-if(id==="cart") renderCart();
 }
 
-function renderProducts(){
-["normal","expensive","vip"].forEach(type=>{
-let box=document.getElementById(type+"Products");
-box.innerHTML="";
+function render(){
+['normal','expensive','vip'].forEach(type=>{
+let box=document.getElementById(type+'Products');
+box.innerHTML='';
 products[type].forEach((p,i)=>{
 box.innerHTML+=`
-<div class="card ${type==="vip"?"vip":""}">
-<img src="${p.img}" onclick="editImage('${type}',${i})">
+<div class="card ${type==='vip'?'vip':''}">
+<span class="stock ${p.stock?'in':'out'}">${p.stock?'IN':'OUT'}</span>
+<img src="${p.img}" onclick="editImg('${type}',${i})">
 <h3 onclick="editName('${type}',${i})">${p.name}</h3>
 <p onclick="editPrice('${type}',${i})">₹${p.price}</p>
-<button onclick="addToCart('${type}',${i})">Add to Cart</button>
+${p.stock?`<button onclick="addToCart('${type}',${i})">Add to Cart</button>`:''}
+${isAdmin?`
+<button class="admin-btn" onclick="toggleStock('${type}',${i})">Toggle Stock</button>
+<button class="admin-btn" onclick="deleteProduct('${type}',${i})">Delete</button>`:''}
 </div>`;
 });
 });
 }
 
-function addToCart(type,i){
-cart.push(products[type][i]);
-alert("Added to cart");
+function loginAdmin(){
+if(adminPass.value===ADMIN_PASSWORD){
+isAdmin=true;
+adminBadge.style.display='block';
+document.getElementById('adminPanel').style.display='block';
+alert("Admin ON");
+render();
+}else alert("Wrong password");
+}
+
+function addProduct(){
+if(!isAdmin)return;
+let c=cat.value,n=pname.value,pr=+pprice.value;
+if(!n||!pr)return alert("Fill all");
+products[c].push({name:n,price:pr,img:"https://via.placeholder.com/400",stock:true});
+save();render();
+pname.value='';pprice.value='';
+}
+
+function deleteProduct(t,i){
+if(!isAdmin)return;
+if(confirm("Delete product?")){
+products[t].splice(i,1);
+save();render();
+}
+}
+
+function toggleStock(t,i){
+if(!isAdmin)return;
+products[t][i].stock=!products[t][i].stock;
+save();render();
+}
+
+function editName(t,i){
+if(!isAdmin)return;
+let v=prompt("New name",products[t][i].name);
+if(v){products[t][i].name=v;save();render();}
+}
+
+function editPrice(t,i){
+if(!isAdmin)return;
+let v=prompt("New price",products[t][i].price);
+if(v){products[t][i].price=v;save();render();}
+}
+
+function editImg(t,i){
+if(!isAdmin)return;
+let input=document.createElement("input");
+input.type="file";input.accept="image/*";
+input.onchange=e=>{
+let r=new FileReader();
+r.onload=ev=>{products[t][i].img=ev.target.result;save();render();};
+r.readAsDataURL(e.target.files[0]);
+};
+input.click();
+}
+
+function addToCart(t,i){
+cart.push(products[t][i]);
+renderCart();
 }
 
 function renderCart(){
 let box=document.getElementById("cartItems");
 box.innerHTML="";
-if(cart.length===0){
-box.innerHTML="<p>Cart is empty</p>";
-return;
-}
-cart.forEach((p,i)=>{
-box.innerHTML+=`<p>${i+1}. ${p.name} - ₹${p.price}</p>`;
-});
+let total=0;
+cart.forEach((c,i)=>{box.innerHTML+=`<p>${i+1}. ${c.name} - ₹${c.price}</p>`;total+=c.price});
+document.getElementById("cartTotal").innerText="Total: ₹"+total;
 }
 
 function checkout(){
-if(cart.length===0){alert("Cart empty");return;}
-
-let name=prompt("Customer Name:");
-let phone=prompt("Customer Mobile Number:");
-let address=prompt("Full Address:");
-
-if(!name || !phone || !address){
-alert("Name, Phone & Address required");
-return;
+if(cart.length===0)return alert("Cart empty");
+let n=prompt("Name");
+let p=prompt("Phone");
+let a=prompt("Address");
+if(!n||!p||!a)return;
+let list=cart.map(c=>c.name+" ₹"+c.price).join("%0A");
+let total=cart.reduce((s,c)=>s+c.price,0);
+location.href=`https://wa.me/919558621515?text=NEW%20ORDER%0AName:${n}%0APhone:${p}%0AAddress:${a}%0A${list}%0ATotal:${total}`;
 }
 
-let msg="🛒 NEW ORDER%0A";
-msg+="👤 Name: "+name+"%0A";
-msg+="📞 Phone: "+phone+"%0A";
-msg+="🏠 Address: "+address+"%0A%0A";
-msg+="📦 Products:%0A";
-
-cart.forEach((p,i)=>{
-msg+=(i+1)+". "+p.name+" - ₹"+p.price+"%0A";
-});
-
-window.open("https://wa.me/919558621515?text="+msg,"_blank");
-}
-
-function loginAdmin(){
-if(document.getElementById("adminPass").value===ADMIN_PASSWORD){
-isAdmin=true;
-document.getElementById("adminPanel").style.display="block";
-alert("Admin Logged In");
-}else{
-alert("Wrong password");
-}
-}
-
-function editName(type,i){
+function editHomeImg(){
 if(!isAdmin)return;
-let n=prompt("New product name",products[type][i].name);
-if(n){products[type][i].name=n;renderProducts();}
+let i=document.createElement("input");
+i.type="file";i.accept="image/*";
+i.onchange=e=>{
+let r=new FileReader();
+r.onload=ev=>{
+homeImg.src=ev.target.result;
+localStorage.setItem("homeImg",ev.target.result);
+};
+r.readAsDataURL(e.target.files[0]);
+};
+i.click();
 }
 
-function editPrice(type,i){
-if(!isAdmin)return;
-let p=prompt("New price",products[type][i].price);
-if(p){products[type][i].price=p;renderProducts();}
-}
+let savedHome=localStorage.getItem("homeImg");
+if(savedHome)homeImg.src=savedHome;
 
-function editImage(type,i){
-if(!isAdmin)return;
-let u=prompt("New image URL");
-if(u){products[type][i].img=u;renderProducts();}
-}
-
-renderProducts();
+render();
 </script>
-
-<a class="whatsapp-float" href="https://wa.me/919558621515" target="_blank">
-💬 WhatsApp
-</a>
-
 </body>
 </html>
