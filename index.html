@@ -41,11 +41,8 @@ box-shadow:0 4px 10px rgba(0,0,0,0.3)
 <header>
 <h1>WARRIOR SHOES</h1>
 <p>Strong | Stylish | Limited</p>
-<p>
-📞 <a href="tel:+919558621515" style="color:white;text-decoration:none;">
-+91 95586 21515
-</a>
-</p>
+<p>📞 <a href="tel:+919558621515" style="color:white;text-decoration:none;">
++91 95586 21515</a></p>
 </header>
 
 <nav>
@@ -143,8 +140,68 @@ alert("Added to cart");
 function renderCart(){
 let box=document.getElementById("cartItems");
 box.innerHTML="";
-cart.forEach(p=>{
-box.innerHTML+=`<p>${p.name} - ₹${p.price}</p>`;
+cart.forEach((p,i)=>{
+box.innerHTML+=`<p>${i+1}. ${p.name} - ₹${p.price}</p>`;
 });
 }
 
+function checkout(){
+if(cart.length===0){alert("Cart empty");return;}
+
+let name=prompt("Customer Name:");
+let phone=prompt("Mobile Number:");
+let address=prompt("Full Address:");
+
+if(!name||!phone||!address){
+alert("All details required");
+return;
+}
+
+let msg="🛒 NEW ORDER%0A";
+msg+="👤 Name: "+name+"%0A";
+msg+="📞 Phone: "+phone+"%0A";
+msg+="🏠 Address: "+address+"%0A%0A";
+msg+="📦 Products:%0A";
+
+cart.forEach((p,i)=>{
+msg+=(i+1)+". "+p.name+" - ₹"+p.price+"%0A";
+});
+
+window.open("https://wa.me/919558621515?text="+msg,"_blank");
+}
+
+function loginAdmin(){
+if(document.getElementById("adminPass").value===ADMIN_PASSWORD){
+isAdmin=true;
+document.getElementById("adminPanel").style.display="block";
+alert("Admin Logged In");
+}else{
+alert("Wrong password");
+}
+}
+
+function adminEditName(t,i){
+if(!isAdmin)return;
+let n=prompt("New name",products[t][i].name);
+if(n){products[t][i].name=n;render();}
+}
+function adminEditPrice(t,i){
+if(!isAdmin)return;
+let p=prompt("New price",products[t][i].price);
+if(p){products[t][i].price=p;render();}
+}
+function adminEditImage(t,i){
+if(!isAdmin)return;
+let u=prompt("Image URL");
+if(u){products[t][i].img=u;render();}
+}
+
+render();
+</script>
+
+<a class="whatsapp-float" href="https://wa.me/919558621515" target="_blank">
+💬 WhatsApp
+</a>
+
+</body>
+</html>
