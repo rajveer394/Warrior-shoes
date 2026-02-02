@@ -2,29 +2,37 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>WARRIOR SHOES</title>
+<title>WARRIOR Shoes</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body{margin:0;font-family:Arial}
-header{background:#000;color:#fff;text-align:center;padding:15px}
-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;background:#eee;padding:10px}
-nav button{padding:8px 14px;border:none;border-radius:5px;cursor:pointer}
-.section{display:none;padding:15px}
+body{margin:0;font-family:Arial;background:#fff;color:#000}
+header{padding:15px;background:#000;color:#fff;text-align:center}
+nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#f5f5f5;padding:10px}
+nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px}
+.section{display:none;padding:20px}
 .active{display:block}
-
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
-.card{border:1px solid #ccc;border-radius:8px;padding:10px;text-align:center}
-.card img{width:100%;height:180px;object-fit:cover;border-radius:6px}
+.card{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center}
+.card img{width:100%;height:180px;object-fit:cover}
+.vip{box-shadow:0 0 15px gold;animation:glow 2s infinite}
+@keyframes glow{0%{box-shadow:0 0 5px gold}50%{box-shadow:0 0 20px gold}100%{box-shadow:0 0 5px gold}}
+input{width:100%;padding:8px;margin:5px 0}
+.admin-only{display:none}
 
-.vip{box-shadow:0 0 15px gold}
-.out{opacity:.5}
-
-.green{color:green;font-weight:bold}
-.red{color:red;font-weight:bold}
-.old{color:#888;text-decoration:line-through}
-
-.admin{border:2px dashed #000;padding:10px;margin-top:10px}
-input,select{width:100%;padding:8px;margin:5px 0}
+/* Floating WhatsApp */
+.whatsapp-float{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#25D366;
+color:white;
+padding:12px 18px;
+border-radius:50px;
+text-decoration:none;
+font-weight:bold;
+box-shadow:0 4px 10px rgba(0,0,0,0.3)
+}
 </style>
 </head>
 
@@ -32,7 +40,12 @@ input,select{width:100%;padding:8px;margin:5px 0}
 
 <header>
 <h1>WARRIOR SHOES</h1>
-<p>VIP | Best Edition</p>
+<p>Strong | Stylish | Limited</p>
+<p>
+📞 <a href="tel:+919558621515" style="color:white;text-decoration:none;">
++91 95586 21515
+</a>
+</p>
 </header>
 
 <nav>
@@ -45,20 +58,30 @@ input,select{width:100%;padding:8px;margin:5px 0}
 </nav>
 
 <div id="home" class="section active">
-<img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" style="width:100%;border-radius:10px">
+<h2>Welcome to WARRIOR</h2>
+<p>Best custom shoes in Gujarat</p>
+<img src="https://source.unsplash.com/1600x500/?shoes,sneakers" style="width:100%">
 </div>
 
-<div id="normal" class="section"><h2>Normal</h2><div id="normalProducts" class="products"></div></div>
-<div id="expensive" class="section"><h2>Expensive</h2><div id="expensiveProducts" class="products"></div></div>
-<div id="vip" class="section"><h2>VIP</h2><div id="vipProducts" class="products"></div></div>
+<div id="normal" class="section">
+<h2>Normal Shoes</h2>
+<div class="products" id="normalProducts"></div>
+</div>
+
+<div id="expensive" class="section">
+<h2>Expensive Shoes</h2>
+<div class="products" id="expensiveProducts"></div>
+</div>
+
+<div id="vip" class="section">
+<h2>VIP Limited Edition</h2>
+<div class="products" id="vipProducts"></div>
+</div>
 
 <div id="cart" class="section">
-<h2>Cart</h2>
+<h2>Your Cart</h2>
 <div id="cartItems"></div>
-<input id="couponInput" placeholder="Coupon Code">
-<button onclick="applyCoupon()">Apply Coupon</button>
-<h3 id="total"></h3>
-<button onclick="buyNow()">Buy Now</button>
+<button onclick="checkout()">Buy Now (WhatsApp)</button>
 </div>
 
 <div id="admin" class="section">
@@ -66,164 +89,107 @@ input,select{width:100%;padding:8px;margin:5px 0}
 <input type="password" id="adminPass" placeholder="Password">
 <button onclick="loginAdmin()">Login</button>
 
-<div id="adminPanel" class="admin" style="display:none">
-
-<h3>Add Product</h3>
-<input id="pname" placeholder="Name">
-<input id="pprice" type="number" placeholder="Price">
-<input id="pdiscount" type="number" placeholder="Discount % (optional)">
-<input id="pimg" placeholder="Image URL">
-<select id="pcat">
-<option value="normal">Normal</option>
-<option value="expensive">Expensive</option>
-<option value="vip">VIP</option>
-</select>
-<select id="pstock">
-<option value="in">In Stock</option>
-<option value="out">Out of Stock</option>
-</select>
-<button onclick="addProduct()">Add Product</button>
-
-<hr>
-
-<h3>Create Coupon</h3>
-<input id="cname" placeholder="Coupon Code">
-<input id="cdiscount" type="number" placeholder="Discount %">
-<button onclick="addCoupon()">Create Coupon</button>
-
-<hr>
-
-<h3>Change Admin Password</h3>
-<input id="oldPass" type="password" placeholder="Old Password">
-<input id="newPass" type="password" placeholder="New Password">
-<button onclick="changePassword()">Change Password</button>
-
+<div id="adminPanel" class="admin-only">
+<h3>Admin Controls</h3>
+<p>Click name / price / image to edit</p>
 </div>
 </div>
 
 <script>
-/* ===== ADMIN PASSWORD SYSTEM ===== */
-let adminPassword = localStorage.getItem("adminPass") || "admin123";
-
-/* ===== DATA ===== */
+let ADMIN_PASSWORD="admin123";
+let cart=[];
 let isAdmin=false;
-let discountCoupon=0;
 
-let products=JSON.parse(localStorage.getItem("products"))||{normal:[],expensive:[],vip:[]};
-let cart=JSON.parse(localStorage.getItem("cart"))||[];
-let coupons=JSON.parse(localStorage.getItem("coupons"))||{};
+const products={
+normal:[
+{name:"Warrior Basic",price:499,img:"https://source.unsplash.com/400x400/?shoes"}
+],
+expensive:[
+{name:"Warrior Pro",price:899,img:"https://source.unsplash.com/400x400/?running-shoes"}
+],
+vip:[
+{name:"Warrior VIP Gold",price:1499,img:"https://source.unsplash.com/400x400/?luxury-shoes"},
+{name:"Warrior VIP Black",price:1599,img:"https://source.unsplash.com/400x400/?black-shoes"}
+]
+};
 
 function show(id){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.getElementById(id).classList.add('active');
-render();
-}
-
-function finalPrice(p){
-return p.discount ? Math.round(p.price - (p.price*p.discount/100)) : p.price;
+if(id==="cart")renderCart();
 }
 
 function render(){
-["normal","expensive","vip"].forEach(cat=>{
-let box=document.getElementById(cat+"Products");
-box.innerHTML="";
-products[cat].forEach((p,i)=>{
+['normal','expensive','vip'].forEach(type=>{
+const box=document.getElementById(type+'Products');
+box.innerHTML='';
+products[type].forEach((p,i)=>{
 box.innerHTML+=`
-<div class="card ${cat==='vip'?'vip':''} ${p.stock==='out'?'out':''}">
-<img src="${p.img}">
-<h3>${p.name}</h3>
-${p.discount?`<p class="old">₹${p.price}</p><p><b>₹${finalPrice(p)}</b></p>`:`<p>₹${p.price}</p>`}
-<p class="${p.stock==='out'?'red':'green'}">${p.stock==='out'?'OUT OF STOCK':'IN STOCK'}</p>
-${p.stock==='in'?`<button onclick="addToCart('${cat}',${i})">Add to Cart</button>`:""}
-${isAdmin?`<button onclick="delProduct('${cat}',${i})">Delete</button>`:""}
+<div class="card ${type==='vip'?'vip':''}">
+<img src="${p.img}" onclick="adminEditImage('${type}',${i})">
+<h3 onclick="adminEditName('${type}',${i})">${p.name}</h3>
+<p onclick="adminEditPrice('${type}',${i})">₹${p.price}</p>
+<button onclick="addToCart('${type}',${i})">Add to Cart</button>
 </div>`;
 });
 });
+}
 
-let sum=0;
-cartItems.innerHTML="";
-cart.forEach(c=>{
-let fp=finalPrice(c);
-cartItems.innerHTML+=`<p>${c.name} - ₹${fp}</p>`;
-sum+=fp;
+function addToCart(t,i){
+cart.push(products[t][i]);
+alert("Added to cart");
+}
+
+function renderCart(){
+let box=document.getElementById("cartItems");
+box.innerHTML="";
+cart.forEach(p=>{
+box.innerHTML+=`<p>${p.name} - ₹${p.price}</p>`;
 });
-sum=sum-(sum*discountCoupon/100);
-total.innerText=`Total: ₹${sum}`;
-
-localStorage.setItem("products",JSON.stringify(products));
-localStorage.setItem("cart",JSON.stringify(cart));
-localStorage.setItem("coupons",JSON.stringify(coupons));
 }
 
-function addProduct(){
-products[pcat.value].push({
-name:pname.value,
-price:+pprice.value,
-discount:+pdiscount.value||0,
-img:pimg.value,
-stock:pstock.value
+function checkout(){
+if(cart.length===0){alert("Cart empty");return;}
+let msg="NEW ORDER%0A";
+cart.forEach(p=>{
+msg+=p.name+" - ₹"+p.price+"%0A";
 });
-render();
+window.open("https://wa.me/919558621515?text="+msg);
 }
 
-function delProduct(cat,i){
-if(confirm("Delete product?")){products[cat].splice(i,1);render();}
-}
-
-function addToCart(cat,i){cart.push(products[cat][i]);render();}
-
-function addCoupon(){
-coupons[cname.value]=+cdiscount.value;
-alert("Coupon Created");
-}
-
-function applyCoupon(){
-if(coupons[couponInput.value]){
-discountCoupon=coupons[couponInput.value];
-alert("Coupon Applied");
-}
-render();
-}
-
-function buyNow(){
-let msg="",totalAmt=0;
-cart.forEach(c=>{
-let fp=finalPrice(c);
-msg+=`• ${c.name} ₹${fp}%0A`;
-totalAmt+=fp;
-});
-totalAmt=totalAmt-(totalAmt*discountCoupon/100);
-window.location.href=`https://wa.me/+919558621515?text=ORDER%0A${msg}%0ATotal ₹${totalAmt}`;
-}
-
-/* ===== ADMIN LOGIN & PASSWORD CHANGE ===== */
 function loginAdmin(){
-if(adminPass.value===adminPassword){
+if(document.getElementById("adminPass").value===ADMIN_PASSWORD){
 isAdmin=true;
-adminPanel.style.display="block";
+document.getElementById("adminPanel").style.display="block";
 alert("Admin Logged In");
 }else{
-alert("Wrong Password");
+alert("Wrong password");
 }
 }
 
-function changePassword(){
-if(oldPass.value!==adminPassword){
-alert("Old password wrong");
-return;
+function adminEditName(t,i){
+if(!isAdmin)return;
+let n=prompt("New name",products[t][i].name);
+if(n){products[t][i].name=n;render();}
 }
-if(newPass.value.length<4){
-alert("Password too short");
-return;
+function adminEditPrice(t,i){
+if(!isAdmin)return;
+let p=prompt("New price",products[t][i].price);
+if(p){products[t][i].price=p;render();}
 }
-adminPassword=newPass.value;
-localStorage.setItem("adminPass",adminPassword);
-alert("Password Changed Successfully");
-oldPass.value=newPass.value="";
+function adminEditImage(t,i){
+if(!isAdmin)return;
+let u=prompt("Image URL");
+if(u){products[t][i].img=u;render();}
 }
 
 render();
 </script>
+
+<!-- Floating WhatsApp -->
+<a class="whatsapp-float"
+href="https://wa.me/919558621515"
+target="_blank">💬 WhatsApp</a>
 
 </body>
 </html>
