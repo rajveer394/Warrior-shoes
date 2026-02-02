@@ -125,17 +125,31 @@ function renderProducts(){
 }
 
 function addProduct(){
- const n=pName.value.trim();
- const pr=parseFloat(pPrice.value);
- const f=pImg.files[0];
- if(!n||!pr||!f){alert('All fields required');return}
- const r=new FileReader();
- r.onload=e=>{
-  products.push({name:n,price:pr,img:e.target.result,stock:true});
-  saveAll();renderProducts();
-  pName.value='';pPrice.value='';pImg.value='';
+ const n=document.getElementById('pName').value.trim();
+ const pr=parseFloat(document.getElementById('pPrice').value);
+ const f=document.getElementById('pImg').files[0];
+
+ if(n===''||isNaN(pr)||!f){
+  alert('Product name, price aur image zaroori hai');
+  return;
+ }
+
+ const reader=new FileReader();
+ reader.onload=function(e){
+  products.push({
+   name:n,
+   price:pr,
+   img:e.target.result,
+   stock:true
+  });
+  saveAll();
+  renderProducts();
+  document.getElementById('pName').value='';
+  document.getElementById('pPrice').value='';
+  document.getElementById('pImg').value='';
+  alert('Product successfully add ho gaya');
  };
- r.readAsDataURL(f);
+ reader.readAsDataURL(f);
 }
 
 function deleteProduct(i){if(confirm('Delete product?')){products.splice(i,1);saveAll();renderProducts();}}
