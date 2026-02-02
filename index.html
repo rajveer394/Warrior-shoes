@@ -9,9 +9,9 @@
 body{margin:0;font-family:Arial;background:#fff;color:#000}
 header{padding:15px;background:#000;color:#fff;text-align:center}
 nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#f5f5f5;padding:10px}
-nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px}
+nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px;background:#ddd}
 .section{display:none;padding:20px}
-.active{display:block}
+.section.active{display:block}
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
 .card{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center}
 .card img{width:100%;height:180px;object-fit:cover}
@@ -20,18 +20,11 @@ nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px}
 input{width:100%;padding:8px;margin:5px 0}
 .admin-only{display:none}
 
-/* Floating WhatsApp */
 .whatsapp-float{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#25D366;
-color:white;
-padding:12px 18px;
-border-radius:50px;
-text-decoration:none;
-font-weight:bold;
-box-shadow:0 4px 10px rgba(0,0,0,0.3)
+position:fixed;bottom:20px;right:20px;
+background:#25D366;color:white;
+padding:12px 18px;border-radius:50px;
+text-decoration:none;font-weight:bold;
 }
 </style>
 </head>
@@ -41,17 +34,17 @@ box-shadow:0 4px 10px rgba(0,0,0,0.3)
 <header>
 <h1>WARRIOR SHOES</h1>
 <p>Strong | Stylish | Limited</p>
-<p>📞 <a href="tel:+919558621515" style="color:white;text-decoration:none;">
+<p>📞 <a href="tel:+919558621515" style="color:white;text-decoration:none">
 +91 95586 21515</a></p>
 </header>
 
 <nav>
-<button onclick="show('home')">Home</button>
-<button onclick="show('normal')">Normal</button>
-<button onclick="show('expensive')">Expensive</button>
-<button onclick="show('vip')">VIP</button>
-<button onclick="show('cart')">Cart</button>
-<button onclick="show('admin')">Admin</button>
+<button onclick="showSection('home')">Home</button>
+<button onclick="showSection('normal')">Normal</button>
+<button onclick="showSection('expensive')">Expensive</button>
+<button onclick="showSection('vip')">VIP</button>
+<button onclick="showSection('cart')">Cart</button>
+<button onclick="showSection('admin')">Admin</button>
 </nav>
 
 <div id="home" class="section active">
@@ -85,17 +78,15 @@ box-shadow:0 4px 10px rgba(0,0,0,0.3)
 <h2>Admin Login</h2>
 <input type="password" id="adminPass" placeholder="Password">
 <button onclick="loginAdmin()">Login</button>
-
 <div id="adminPanel" class="admin-only">
-<h3>Admin Controls</h3>
-<p>Click name / price / image to edit</p>
+<p>Click product name / price / image to edit</p>
 </div>
 </div>
 
 <script>
 let ADMIN_PASSWORD="admin123";
-let cart=[];
 let isAdmin=false;
+let cart=[];
 
 const products={
 normal:[
@@ -110,36 +101,40 @@ vip:[
 ]
 };
 
-function show(id){
+function showSection(id){
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.getElementById(id).classList.add('active');
-if(id==="cart")renderCart();
+if(id==="cart") renderCart();
 }
 
-function render(){
-['normal','expensive','vip'].forEach(type=>{
-const box=document.getElementById(type+'Products');
-box.innerHTML='';
+function renderProducts(){
+["normal","expensive","vip"].forEach(type=>{
+let box=document.getElementById(type+"Products");
+box.innerHTML="";
 products[type].forEach((p,i)=>{
 box.innerHTML+=`
-<div class="card ${type==='vip'?'vip':''}">
-<img src="${p.img}" onclick="adminEditImage('${type}',${i})">
-<h3 onclick="adminEditName('${type}',${i})">${p.name}</h3>
-<p onclick="adminEditPrice('${type}',${i})">₹${p.price}</p>
+<div class="card ${type==="vip"?"vip":""}">
+<img src="${p.img}" onclick="editImage('${type}',${i})">
+<h3 onclick="editName('${type}',${i})">${p.name}</h3>
+<p onclick="editPrice('${type}',${i})">₹${p.price}</p>
 <button onclick="addToCart('${type}',${i})">Add to Cart</button>
 </div>`;
 });
 });
 }
 
-function addToCart(t,i){
-cart.push(products[t][i]);
+function addToCart(type,i){
+cart.push(products[type][i]);
 alert("Added to cart");
 }
 
 function renderCart(){
 let box=document.getElementById("cartItems");
 box.innerHTML="";
+if(cart.length===0){
+box.innerHTML="<p>Cart is empty</p>";
+return;
+}
 cart.forEach((p,i)=>{
 box.innerHTML+=`<p>${i+1}. ${p.name} - ₹${p.price}</p>`;
 });
@@ -149,11 +144,11 @@ function checkout(){
 if(cart.length===0){alert("Cart empty");return;}
 
 let name=prompt("Customer Name:");
-let phone=prompt("Mobile Number:");
+let phone=prompt("Customer Mobile Number:");
 let address=prompt("Full Address:");
 
-if(!name||!phone||!address){
-alert("All details required");
+if(!name || !phone || !address){
+alert("Name, Phone & Address required");
 return;
 }
 
@@ -180,23 +175,25 @@ alert("Wrong password");
 }
 }
 
-function adminEditName(t,i){
+function editName(type,i){
 if(!isAdmin)return;
-let n=prompt("New name",products[t][i].name);
-if(n){products[t][i].name=n;render();}
-}
-function adminEditPrice(t,i){
-if(!isAdmin)return;
-let p=prompt("New price",products[t][i].price);
-if(p){products[t][i].price=p;render();}
-}
-function adminEditImage(t,i){
-if(!isAdmin)return;
-let u=prompt("Image URL");
-if(u){products[t][i].img=u;render();}
+let n=prompt("New product name",products[type][i].name);
+if(n){products[type][i].name=n;renderProducts();}
 }
 
-render();
+function editPrice(type,i){
+if(!isAdmin)return;
+let p=prompt("New price",products[type][i].price);
+if(p){products[type][i].price=p;renderProducts();}
+}
+
+function editImage(type,i){
+if(!isAdmin)return;
+let u=prompt("New image URL");
+if(u){products[type][i].img=u;renderProducts();}
+}
+
+renderProducts();
 </script>
 
 <a class="whatsapp-float" href="https://wa.me/919558621515" target="_blank">
