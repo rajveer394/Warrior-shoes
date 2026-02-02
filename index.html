@@ -1,138 +1,229 @@
-<!DOCTYPE html><html lang="hi">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>WARRIOR Shoes</title>
+<title>WARRIOR SHOES</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{margin:0;font-family:Arial;background:#fff;color:#000}
-header{padding:15px;background:#000;color:#fff;text-align:center}
-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:#f5f5f5;padding:10px;position:sticky;top:0;z-index:10}
-nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px;background:#000;color:#fff}
-.section{display:none;padding:20px}
+body{margin:0;font-family:Arial}
+header{background:#000;color:#fff;text-align:center;padding:15px}
+nav{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;background:#eee;padding:10px}
+nav button{padding:8px 14px;border:none;border-radius:5px;cursor:pointer}
+.section{display:none;padding:15px}
 .active{display:block}
+
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
-.card{border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center}
-.card img{width:100%;height:180px;object-fit:cover;cursor:pointer}
-.vip{box-shadow:0 0 15px gold;animation:glow 2s infinite}
-@keyframes glow{0%{box-shadow:0 0 5px gold}50%{box-shadow:0 0 20px gold}100%{box-shadow:0 0 5px gold}}
-.admin-badge{display:none;color:red;font-weight:bold;margin:10px 0}
+.card{border:1px solid #ccc;border-radius:8px;padding:10px;text-align:center}
+.card img{width:100%;height:180px;object-fit:cover;border-radius:6px}
+
+.vip{box-shadow:0 0 15px gold}
+.out{opacity:.5}
+
+.green{color:green;font-weight:bold}
+.red{color:red;font-weight:bold}
+.old{color:#888;text-decoration:line-through}
+
+.admin{border:2px dashed #000;padding:10px;margin-top:10px}
+input,select{width:100%;padding:8px;margin:5px 0}
 </style>
 </head>
+
 <body>
+
 <header>
 <h1>WARRIOR SHOES</h1>
-<p>Best Shoes | VIP Limited Edition</p>
-</header><nav>
+<p>VIP | Best Edition</p>
+</header>
+
+<nav>
 <button onclick="show('home')">Home</button>
 <button onclick="show('normal')">Normal</button>
-<button onclick="show('expensive')">Best Shoes</button>
+<button onclick="show('expensive')">Expensive</button>
 <button onclick="show('vip')">VIP</button>
 <button onclick="show('cart')">Cart</button>
 <button onclick="show('admin')">Admin</button>
-</nav><div id="home" class="section active">
-<h2>Welcome to WARRIOR</h2>
-<p>Custom Shoes Brand</p>
-<img id="homeImg" src="https://images.unsplash.com/photo-1528701800489-20be1c1b8a5c" style="width:100%;cursor:pointer" onclick="editHomeImg()">
-</div><div id="normal" class="section"><h2>Normal Shoes</h2><div class="products" id="normalProducts"></div></div>
-<div id="expensive" class="section"><h2>Best Shoes</h2><div class="products" id="expensiveProducts"></div></div>
-<div id="vip" class="section"><h2>VIP Limited</h2><div class="products" id="vipProducts"></div></div><div id="cart" class="section">
-<h2>Your Cart</h2>
-<div id="cartItems"></div><p id="cartTotal"></p>
-<button onclick="checkout()">Buy Now</button>
-</div><div id="admin" class="section">
+</nav>
+
+<div id="home" class="section active">
+<img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" style="width:100%;border-radius:10px">
+</div>
+
+<div id="normal" class="section"><h2>Normal</h2><div id="normalProducts" class="products"></div></div>
+<div id="expensive" class="section"><h2>Expensive</h2><div id="expensiveProducts" class="products"></div></div>
+<div id="vip" class="section"><h2>VIP</h2><div id="vipProducts" class="products"></div></div>
+
+<div id="cart" class="section">
+<h2>Cart</h2>
+<div id="cartItems"></div>
+<input id="couponInput" placeholder="Coupon Code">
+<button onclick="applyCoupon()">Apply Coupon</button>
+<h3 id="total"></h3>
+<button onclick="buyNow()">Buy Now</button>
+</div>
+
+<div id="admin" class="section">
 <h2>Admin Login</h2>
 <input type="password" id="adminPass" placeholder="Password">
 <button onclick="loginAdmin()">Login</button>
-<p class="admin-badge" id="adminBadge">ADMIN EDIT MODE ON</p>
-</div><script>
-const ADMIN_PASSWORD="Ch@vd@ r@jveer99";
+
+<div id="adminPanel" class="admin" style="display:none">
+
+<h3>Add Product</h3>
+<input id="pname" placeholder="Name">
+<input id="pprice" type="number" placeholder="Price">
+<input id="pdiscount" type="number" placeholder="Discount % (optional)">
+<input id="pimg" placeholder="Image URL">
+<select id="pcat">
+<option value="normal">Normal</option>
+<option value="expensive">Expensive</option>
+<option value="vip">VIP</option>
+</select>
+<select id="pstock">
+<option value="in">In Stock</option>
+<option value="out">Out of Stock</option>
+</select>
+<button onclick="addProduct()">Add Product</button>
+
+<hr>
+
+<h3>Create Coupon</h3>
+<input id="cname" placeholder="Coupon Code">
+<input id="cdiscount" type="number" placeholder="Discount %">
+<button onclick="addCoupon()">Create Coupon</button>
+
+<hr>
+
+<h3>Change Admin Password</h3>
+<input id="oldPass" type="password" placeholder="Old Password">
+<input id="newPass" type="password" placeholder="New Password">
+<button onclick="changePassword()">Change Password</button>
+
+</div>
+</div>
+
+<script>
+/* ===== ADMIN PASSWORD SYSTEM ===== */
+let adminPassword = localStorage.getItem("adminPass") || "admin123";
+
+/* ===== DATA ===== */
 let isAdmin=false;
-let cart=[];
+let discountCoupon=0;
 
-let products=JSON.parse(localStorage.getItem('products'))||{
-normal:[{name:"Warrior Basic",price:499,img:"https://images.unsplash.com/photo-1519741497674-611481863552"}],
-expensive:[{name:"Warrior Best",price:899,img:"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77"}],
-vip:[{name:"Warrior VIP",price:1499,img:"https://images.unsplash.com/photo-1606813902919-6e5d90cfe5b4"}]
-};
+let products=JSON.parse(localStorage.getItem("products"))||{normal:[],expensive:[],vip:[]};
+let cart=JSON.parse(localStorage.getItem("cart"))||[];
+let coupons=JSON.parse(localStorage.getItem("coupons"))||{};
 
-function save(){localStorage.setItem('products',JSON.stringify(products));}
-function show(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-
-function render(){['normal','expensive','vip'].forEach(type=>{
-const box=document.getElementById(type+'Products');box.innerHTML='';
-products[type].forEach((p,i)=>{
-box.innerHTML+=`<div class="card ${type==='vip'?'vip':''}">
-<img src="${p.img}" onclick="editImg('${type}',${i})">
-<h3 onclick="editName('${type}',${i})">${p.name}</h3>
-<p onclick="editPrice('${type}',${i})">₹${p.price}</p>
-<button onclick="addToCart('${type}',${i})">Add to Cart</button>
-</div>`;
-});
-});}
-
-function loginAdmin(){if(adminPass.value===ADMIN_PASSWORD){isAdmin=true;adminBadge.style.display='block';alert('Admin ON');}else alert('Wrong');}
-function editName(t,i){if(!isAdmin)return;let v=prompt('Name',products[t][i].name);if(v){products[t][i].name=v;save();render();renderCart();}}
-function editPrice(t,i){if(!isAdmin)return;let v=prompt('Price',products[t][i].price);if(v){products[t][i].price=v;save();render();}}
-function editImg(t,i){
- if(!isAdmin) return;
- let input=document.createElement('input');
- input.type='file';
- input.accept='image/*';
- input.onchange=function(e){
-  let file=e.target.files[0];
-  if(!file) return;
-  let reader=new FileReader();
-  reader.onload=function(ev){
-   products[t][i].img=ev.target.result; // HD image as base64
-   save();
-   render();
-  };
-  reader.readAsDataURL(file);
- };
- input.click();
+function show(id){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+render();
 }
 
-function addToCart(t,i){cart.push(products[t][i]);renderCart();alert('Added to cart');}
+function finalPrice(p){
+return p.discount ? Math.round(p.price - (p.price*p.discount/100)) : p.price;
+}
 
-function checkout(){
- let n=prompt('Name');
- let a=prompt('Address');
- let p=prompt('WhatsApp');
- if(!n||!a||!p)return;
- let orderList=cart.map(c=>c.name+' - ₹'+c.price).join('%0A');
- let total=cart.reduce((s,c)=>s+c.price,0);
- let msg=`NEW ORDER%0AName:${n}%0APhone:${p}%0AAddress:${a}%0A---ITEMS---%0A${orderList}%0ATotal: ₹${total}`;
- location.href=`https://wa.me/919558621515?text=${msg}`;
+function render(){
+["normal","expensive","vip"].forEach(cat=>{
+let box=document.getElementById(cat+"Products");
+box.innerHTML="";
+products[cat].forEach((p,i)=>{
+box.innerHTML+=`
+<div class="card ${cat==='vip'?'vip':''} ${p.stock==='out'?'out':''}">
+<img src="${p.img}">
+<h3>${p.name}</h3>
+${p.discount?`<p class="old">₹${p.price}</p><p><b>₹${finalPrice(p)}</b></p>`:`<p>₹${p.price}</p>`}
+<p class="${p.stock==='out'?'red':'green'}">${p.stock==='out'?'OUT OF STOCK':'IN STOCK'}</p>
+${p.stock==='in'?`<button onclick="addToCart('${cat}',${i})">Add to Cart</button>`:""}
+${isAdmin?`<button onclick="delProduct('${cat}',${i})">Delete</button>`:""}
+</div>`;
+});
+});
+
+let sum=0;
+cartItems.innerHTML="";
+cart.forEach(c=>{
+let fp=finalPrice(c);
+cartItems.innerHTML+=`<p>${c.name} - ₹${fp}</p>`;
+sum+=fp;
+});
+sum=sum-(sum*discountCoupon/100);
+total.innerText=`Total: ₹${sum}`;
+
+localStorage.setItem("products",JSON.stringify(products));
+localStorage.setItem("cart",JSON.stringify(cart));
+localStorage.setItem("coupons",JSON.stringify(coupons));
+}
+
+function addProduct(){
+products[pcat.value].push({
+name:pname.value,
+price:+pprice.value,
+discount:+pdiscount.value||0,
+img:pimg.value,
+stock:pstock.value
+});
+render();
+}
+
+function delProduct(cat,i){
+if(confirm("Delete product?")){products[cat].splice(i,1);render();}
+}
+
+function addToCart(cat,i){cart.push(products[cat][i]);render();}
+
+function addCoupon(){
+coupons[cname.value]=+cdiscount.value;
+alert("Coupon Created");
+}
+
+function applyCoupon(){
+if(coupons[couponInput.value]){
+discountCoupon=coupons[couponInput.value];
+alert("Coupon Applied");
+}
+render();
+}
+
+function buyNow(){
+let msg="",totalAmt=0;
+cart.forEach(c=>{
+let fp=finalPrice(c);
+msg+=`• ${c.name} ₹${fp}%0A`;
+totalAmt+=fp;
+});
+totalAmt=totalAmt-(totalAmt*discountCoupon/100);
+window.location.href=`https://wa.me/919999999999?text=ORDER%0A${msg}%0ATotal ₹${totalAmt}`;
+}
+
+/* ===== ADMIN LOGIN & PASSWORD CHANGE ===== */
+function loginAdmin(){
+if(adminPass.value===adminPassword){
+isAdmin=true;
+adminPanel.style.display="block";
+alert("Admin Logged In");
+}else{
+alert("Wrong Password");
+}
+}
+
+function changePassword(){
+if(oldPass.value!==adminPassword){
+alert("Old password wrong");
+return;
+}
+if(newPass.value.length<4){
+alert("Password too short");
+return;
+}
+adminPassword=newPass.value;
+localStorage.setItem("adminPass",adminPassword);
+alert("Password Changed Successfully");
+oldPass.value=newPass.value="";
 }
 
 render();
-function renderCart(){
- let box=document.getElementById('cartItems');
- box.innerHTML='';
- cart.forEach((c,i)=>{box.innerHTML+=`<p>${i+1}. ${c.name} - ₹${c.price}</p>`});
- let total=cart.reduce((s,c)=>s+c.price,0);
- document.getElementById('cartTotal').innerText='Total: ₹'+total;
-}
+</script>
 
-function editHomeImg(){
- if(!isAdmin) return;
- let input=document.createElement('input');
- input.type='file';
- input.accept='image/*';
- input.onchange=function(e){
-  let file=e.target.files[0];
-  if(!file) return;
-  let r=new FileReader();
-  r.onload=function(ev){
-   document.getElementById('homeImg').src=ev.target.result;
-   localStorage.setItem('homeImg',ev.target.result);
-  };
-  r.readAsDataURL(file);
- };
- input.click();
-}
-
-let savedHome=localStorage.getItem('homeImg');
-if(savedHome) document.getElementById('homeImg').src=savedHome;
-</script></body>
+</body>
 </html>
