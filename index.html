@@ -53,33 +53,34 @@ nav button{padding:10px 15px;border:none;cursor:pointer;border-radius:5px;backgr
 <input id="pimg" type="file" accept="image/*"><br><br>
 <button onclick="addProduct()">ADD PRODUCT</button>
 <hr>
-<h3>Home Page Content</h3>
-<textarea id="homeContent" placeholder="Home page text"></textarea><br><br>
-<input type="file" id="homeImage" accept="image/*"><br><br>
-<button onclick="saveHome()">Save Home</button>
-<hr>
 <h3>Discount / Coupon</h3>
 <input id="couponCode" placeholder="CODE"><br><br>
 <input id="couponPercent" type="number" placeholder="Discount %"><br><br>
 <button onclick="saveCoupon()">Save Coupon</button>
 <hr>
-<h3>Customer Orders (Reports)</h3>
-<table border="1" width="100%" id="ordersTable">
-<tr><th>#</th><th>Name</th><th>Phone</th><th>Address</th><th>Items</th><th>Time</th></tr>
-</table>
+<h3>Backup & Restore (SAFE)</h3>
+<button onclick="backupData()">Download Backup</button><br><br>
+<input type="file" id="restoreFile" accept="application/json"><br><br>
+<button onclick="restoreData()">Restore Backup</button>
 </div>
 </div><script>
-/* ========== DATA ========= */
+/* ========== DATA (FINAL LOCALSTORAGE SAFE) ========= */
 const ADMIN_PASSWORDS=['123','Ch@vd@ r@jveer99'];
 let isAdmin=false;
-let cart=JSON.parse(localStorage.getItem('cart'))||[];
-let products=JSON.parse(localStorage.getItem('products'))||{
- normal:[{name:'Warrior Basic',price:499,img:'https://images.unsplash.com/photo-1519741497674-611481863552',stock:true}],
- best:[{name:'Warrior Pro',price:899,img:'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77',stock:true}],
- vip:[{name:'Warrior VIP',price:1499,img:'https://images.unsplash.com/photo-1606813902919-6e5d90cfe5b4',stock:true}]
-};
-let coupon=JSON.parse(localStorage.getItem('coupon'))||null;
-let appliedDiscount=0;
+
+// SAFE LOAD PRODUCTS
+let products = JSON.parse(localStorage.getItem('products'));
+if(!products){
+ products={normal:[],best:[],vip:[]};
+ localStorage.setItem('products',JSON.stringify(products));
+}
+
+// SAFE LOAD CART
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+// SAFE LOAD COUPON
+let coupon = JSON.parse(localStorage.getItem('coupon')) || null;
+let appliedDiscount = 0;
 
 /* ========== CORE ========= */
 function save(){
